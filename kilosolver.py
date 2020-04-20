@@ -210,22 +210,22 @@ move_x2 = State((15, 16, 17, 18, 19, 10, 9, 8, 7, 6, 5, 14, 13, 12, 11, 0, 1, 2,
 moves = (move_U, move_R, move_F, move_L, move_BL, move_BR, move_x2)
 move_names = ('U', 'R', 'F', 'L', 'BL', 'BR', 'flip')
 
-# test_state = State(888942217053048776751679251)
+test_state = State(888942217053048776751679251)
 
 # def random_state():
 #     return State(random.randrange(factorial(20) // 2 * 3 ** 19))
 
-# def print_move_sequence(move_sequence):
-#     s = []
-#     for (m, r) in move_sequence:
-#         suffix = (None, '', '2', "2'", "'")[r]
-#         s.append(move_names[m] + suffix)
-#     return ' '.join(s)
+def print_move_sequence(move_sequence):
+    s = []
+    for (m, r) in move_sequence:
+        suffix = (None, '', '2', "2'", "'")[r]
+        s.append(move_names[m] + suffix)
+    return ' '.join(s)
 
-# def apply_move_sequence(state, move_sequence):
-#     for (m, r) in move_sequence:
-#         state = state * moves[m]**r
-#     return state
+def apply_move_sequence(state, move_sequence):
+    for (m, r) in move_sequence:
+        state = state * moves[m]**r
+    return state
 
 # '''
 # Now for the actual solver. We fix some standard colour scheme to solve into
@@ -259,34 +259,35 @@ move_names = ('U', 'R', 'F', 'L', 'BL', 'BR', 'flip')
 # so this is split into orientation + permutation.
 # '''
 
-# def solve_phase1(state):
-#     p = state.p
-#     if all(p.index(i) < 15 for i in range(15, 20)):
-#         return ()
-#     if all(p.index(i) >= 5 for i in range(15, 20)):
-#         return ((6, 1),)
-#     flags = tuple(+(p[i] >= 15) for i in range(20))
-#     depth = 0
-#     sol = None
-#     while sol is None:
-#         depth += 1
-#         sol = search_phase1(flags, depth)
-#     return sol + ((6, 1),)
+def solve_phase1(state):
+    p = state.p
+    if all(p.index(i) < 15 for i in range(15, 20)):
+        return ()
+    if all(p.index(i) >= 5 for i in range(15, 20)):
+        return ((6, 1),)
+    flags = tuple(+(p[i] >= 15) for i in range(20))
+    depth = 0
+    sol = None
+    while sol is None:
+        depth += 1
+        print(depth)
+        sol = search_phase1(flags, depth)
+    return sol + ((6, 1),)
 
-# def search_phase1(flags, depth, last=None):
-#     if depth == 0:
-#         if any(flags[i] for i in range(5)):
-#             return None
-#         return ()
-#     for move_index in range(6):
-#         if move_index == last:
-#             continue
-#         for r in range(1, 5):
-#             new_flags = compose(flags, (moves[move_index] ** r).p)
-#             sol = search_phase1(new_flags, depth-1, move_index)
-#             if sol is not None:
-#                 return ((move_index, r),) + sol
-#     return None
+def search_phase1(flags, depth, last=None):
+    if depth == 0:
+        if any(flags[i] for i in range(5)):
+            return None
+        return ()
+    for move_index in range(6):
+        if move_index == last:
+            continue
+        for r in range(1, 5):
+            new_flags = compose(flags, (moves[move_index] ** r).p)
+            sol = search_phase1(new_flags, depth-1, move_index)
+            if sol is not None:
+                return ((move_index, r),) + sol
+    return None
 
 # def index_phase2(state):
 #     p = state.p
@@ -326,15 +327,15 @@ move_names = ('U', 'R', 'F', 'L', 'BL', 'BR', 'flip')
 #     ptables = (generate_phase4_orientation_ptable(), generate_phase4_permutation_ptable())
 #     return ida_solve(index_phase4(state), mtables, ptables)
 
-# def solve(state):
-#     sol1 = solve_phase1(state)
-#     state = apply_move_sequence(state, sol1)
-#     sol2 = solve_phase2(state)
-#     state = apply_move_sequence(state, sol2)
-#     sol3 = solve_phase3(state)
-#     state = apply_move_sequence(state, sol3)
-#     sol4 = solve_phase4(state)
-#     return sol1 + sol2 + sol3 + sol4
+def solve(state):
+    sol1 = solve_phase1(state)
+    state = apply_move_sequence(state, sol1)
+    # sol2 = solve_phase2(state)
+    # state = apply_move_sequence(state, sol2)
+    # sol3 = solve_phase3(state)
+    # state = apply_move_sequence(state, sol3)
+    # sol4 = solve_phase4(state)
+    return sol1 # + sol2 + sol3 + sol4
 
 # @functools.lru_cache()
 # def generate_phase23_orientation_mtable():
@@ -482,4 +483,4 @@ move_names = ('U', 'R', 'F', 'L', 'BL', 'BR', 'flip')
 #             r += 1
 #     return None
 
-print(moves)
+print(print_move_sequence(solve(test_state)))

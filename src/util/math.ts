@@ -2,11 +2,11 @@ import bigInt, { BigInteger } from 'big-integer';
 
 const factorial = (num: number): BigInteger => {
   if (num < 2) {
-    return bigInt(1)
+    return bigInt(1);
   }
   let total = bigInt(2);
-  for (let i = 3; i < num; i++) {
-    total = total.multiply(i)
+  for (let i = 3; i <= num; i++) {
+    total = total.multiply(i);
   }
   return total;
 }

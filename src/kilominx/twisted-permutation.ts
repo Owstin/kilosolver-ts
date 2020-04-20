@@ -3,8 +3,8 @@ import { rangeArray, numberArray } from '../util/arrays';
 
 export class TwistedPermutation {
   constructor(
-    private permution: number[],
-    private orientation: number[],
+    public permution: number[],
+    public orientation: number[],
     private modulus: number
   ) { }
 
@@ -27,9 +27,7 @@ export class TwistedPermutation {
       p[i] = this.permution[otherPermutation.permution[i]];
       o[i] = (this.orientation[otherPermutation.permution[i]] + otherPermutation.orientation[i]) % this.modulus;
     }
-    this.permution = p;
-    this.orientation = o;
-    return this;
+    return new TwistedPermutation(p, o, this.modulus);
   }
 
   invert() {
@@ -39,23 +37,21 @@ export class TwistedPermutation {
       p[this.permution[i]] = i;
       o[this.permution[i]] = (-1 * this.orientation[i]) % this.modulus; 
     }
-    this.permution = p;
-    this.orientation = o;
-    return this;
+    return new TwistedPermutation(p, o, this.modulus);
   }
 
   pow(num: number): TwistedPermutation {
     if (num === 0) {
-      this.permution = rangeArray(this.length());
-      this.orientation = numberArray(0, this.length());
-      return this;
+      const p = rangeArray(this.length());
+      const o = numberArray(0, this.length());
+      return new TwistedPermutation(p, o, this.modulus);
     } else if (num === 1) {
       return this;
     } else if (num < 0) {
       return this.invert().pow(-num);
     } else {
       const half = this.pow(Math.floor(num / 2));
-      return half.multiply(half).multiply(this).pow(num % 2);
+      return half.multiply(half.multiply(this.pow(num % 2)));
     }
   }
 }
