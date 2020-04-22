@@ -270,7 +270,6 @@ def solve_phase1(state):
     sol = None
     while sol is None:
         depth += 1
-        print(depth)
         sol = search_phase1(flags, depth)
     return sol + ((6, 1),)
 
@@ -289,18 +288,18 @@ def search_phase1(flags, depth, last=None):
                 return ((move_index, r),) + sol
     return None
 
-# def index_phase2(state):
-#     p = state.p
-#     o = state.o
-#     index_c = comb_to_index([+(p[i] >= 15) for i in range(15)])
-#     index_o = sum(o * 3**i for i, o in enumerate(o[i] for i in range(15) if p[i] >= 15)) + 243 * index_c
-#     index_p = sum(p.index(15 + i) * 15**i for i in range(5))
-#     return index_o, index_p
+def index_phase2(state):
+    p = state.p
+    o = state.o
+    index_c = comb_to_index([+(p[i] >= 15) for i in range(15)])
+    index_o = sum(o * 3**i for i, o in enumerate(o[i] for i in range(15) if p[i] >= 15)) + 243 * index_c
+    index_p = sum(p.index(15 + i) * 15**i for i in range(5))
+    return index_o, index_p
 
-# def solve_phase2(state):
-#     mtables = (generate_phase23_orientation_mtable(), generate_phase23_permutation_mtable())
-#     ptables = (generate_phase2_orientation_ptable(), generate_phase2_permutation_ptable())
-#     return ida_solve(index_phase2(state), mtables, ptables) + ((6, 1),)
+def solve_phase2(state):
+    mtables = (generate_phase23_orientation_mtable(), generate_phase23_permutation_mtable())
+    ptables = (generate_phase2_orientation_ptable(), generate_phase2_permutation_ptable())
+    return ida_solve(index_phase2(state), mtables, ptables) + ((6, 1),)
 
 # def index_phase3(state):
 #     p = state.p
@@ -330,59 +329,59 @@ def search_phase1(flags, depth, last=None):
 def solve(state):
     sol1 = solve_phase1(state)
     state = apply_move_sequence(state, sol1)
-    # sol2 = solve_phase2(state)
-    # state = apply_move_sequence(state, sol2)
+    sol2 = solve_phase2(state)
+    state = apply_move_sequence(state, sol2)
     # sol3 = solve_phase3(state)
     # state = apply_move_sequence(state, sol3)
     # sol4 = solve_phase4(state)
-    return sol1 # + sol2 + sol3 + sol4
+    return sol1 + sol2 # + sol3 + sol4
 
-# @functools.lru_cache()
-# def generate_phase23_orientation_mtable():
-#     phase23_move_o = [[None] * 6 for i in range(C(15, 5) * 3**5)]
-#     combs = tuple(index_to_comb(i, 5, 15) for i in range(C(15, 5)))
-#     for i in range(C(15, 5)):
-#         comb = combs[i] + (0,) * 5
-#         new_combs = tuple(comb_to_index(compose(comb, moves[move_index].p)[:15]) for move_index in range(6))
-#         for j in range(3**5):
-#             orient = [j // 3**i % 3 for i in range(4, -1, -1)]
-#             orient_full = [orient.pop() if comb[i] == 1 else 99 for i in range(20)]
-#             for move_index in range(6):
-#                 new_orient_full = (orient_full[moves[move_index].p[i]] + moves[move_index].o[i] for i in range(15))
-#                 new_orient = filter(lambda x: x < 10, new_orient_full)
-#                 J = sum(o % 3 * 3**i for i, o in enumerate(new_orient))
-#                 phase23_move_o[j + 3**5 * i][move_index] = J + 3**5 * new_combs[move_index]
-#     return phase23_move_o
+@functools.lru_cache()
+def generate_phase23_orientation_mtable():
+    phase23_move_o = [[None] * 6 for i in range(C(15, 5) * 3**5)]
+    combs = tuple(index_to_comb(i, 5, 15) for i in range(C(15, 5)))
+    for i in range(C(15, 5)):
+        comb = combs[i] + (0,) * 5
+        new_combs = tuple(comb_to_index(compose(comb, moves[move_index].p)[:15]) for move_index in range(6))
+        for j in range(3**5):
+            orient = [j // 3**i % 3 for i in range(4, -1, -1)]
+            orient_full = [orient.pop() if comb[i] == 1 else 99 for i in range(20)]
+            for move_index in range(6):
+                new_orient_full = (orient_full[moves[move_index].p[i]] + moves[move_index].o[i] for i in range(15))
+                new_orient = filter(lambda x: x < 10, new_orient_full)
+                J = sum(o % 3 * 3**i for i, o in enumerate(new_orient))
+                phase23_move_o[j + 3**5 * i][move_index] = J + 3**5 * new_combs[move_index]
+    return phase23_move_o
 
-# @functools.lru_cache()
-# def generate_phase2_orientation_ptable():
-#     mtable = generate_phase23_orientation_mtable()
-#     return bfs(mtable, (243 * 3002,))
+@functools.lru_cache()
+def generate_phase2_orientation_ptable():
+    mtable = generate_phase23_orientation_mtable()
+    return bfs(mtable, (243 * 3002,))
 
 # @functools.lru_cache()
 # def generate_phase3_orientation_ptable():
 #     mtable = generate_phase23_orientation_mtable()
 #     return bfs(mtable, (243 * 246,))
 
-# @functools.lru_cache()
-# def generate_phase23_permutation_mtable():
-#     phase23_move_p = [[None] * 6 for i in range(15 ** 5)]
-#     single = [[None] * 6 for i in range(15)]
-#     for i in range(15):
-#         for move_index in range(6):
-#             single[i][move_index] = moves[move_index].p.index(i)
-#     for locations in product(range(15), repeat=5):
-#         ind = sum(locations[i] * 15 ** i for i in range(5))
-#         for move_index in range(6):
-#             new_locations = [single[loc][move_index] for loc in locations]
-#             new_ind = sum(new_locations[i] * 15 ** i for i in range(5))
-#             phase23_move_p[ind][move_index] = new_ind
-#     return phase23_move_p
+@functools.lru_cache()
+def generate_phase23_permutation_mtable():
+    phase23_move_p = [[None] * 6 for i in range(15 ** 5)]
+    single = [[None] * 6 for i in range(15)]
+    for i in range(15):
+        for move_index in range(6):
+            single[i][move_index] = moves[move_index].p.index(i)
+    for locations in product(range(15), repeat=5):
+        ind = sum(locations[i] * 15 ** i for i in range(5))
+        for move_index in range(6):
+            new_locations = [single[loc][move_index] for loc in locations]
+            new_ind = sum(new_locations[i] * 15 ** i for i in range(5))
+            phase23_move_p[ind][move_index] = new_ind
+    return phase23_move_p
 
-# @functools.lru_cache()
-# def generate_phase2_permutation_ptable():
-#     mtable = generate_phase23_permutation_mtable()
-#     return bfs(mtable, (sum(i * 15**i for i in range(5)),))
+@functools.lru_cache()
+def generate_phase2_permutation_ptable():
+    mtable = generate_phase23_permutation_mtable()
+    return bfs(mtable, (sum(i * 15**i for i in range(5)),))
 
 # @functools.lru_cache()
 # def generate_phase3_permutation_ptable():
@@ -427,60 +426,60 @@ def solve(state):
 #     mtable = generate_phase4_permutation_mtable()
 #     return bfs(mtable, (0,))
 
-# def bfs(mtable, goal_states):
-#     N = len(mtable)
-#     nmoves = len(mtable[0])
-#     ptable = [None] * N
-#     queue = list(goal_states)
-#     depth = 0
-#     while len(queue) > 0:
-#         new_queue = []
-#         for state in queue:
-#             if ptable[state] is not None:
-#                 continue
-#             ptable[state] = depth
-#             for move_index in range(nmoves):
-#                 new_state = mtable[state][move_index]
-#                 while new_state != state:
-#                     new_queue.append(new_state)
-#                     new_state = mtable[new_state][move_index]
-#         queue = new_queue
-#         depth += 1
-#     return ptable
+def bfs(mtable, goal_states):
+    N = len(mtable)
+    nmoves = len(mtable[0])
+    ptable = [None] * N
+    queue = list(goal_states)
+    depth = 0
+    while len(queue) > 0:
+        new_queue = []
+        for state in queue:
+            if ptable[state] is not None:
+                continue
+            ptable[state] = depth
+            for move_index in range(nmoves):
+                new_state = mtable[state][move_index]
+                while new_state != state:
+                    new_queue.append(new_state)
+                    new_state = mtable[new_state][move_index]
+        queue = new_queue
+        depth += 1
+    return ptable
 
-# def ida_solve(indices, mtables, ptables):
-#     if type(indices) != list:
-#         indices = list(indices)
-#     ncoords = len(indices)
-#     bound = max(ptables[i][indices[i]] for i in range(ncoords))
-#     while True:
-#         path = ida_search(indices, mtables, ptables, bound, None)
-#         if path is not None:
-#             return path
-#         bound += 1
+def ida_solve(indices, mtables, ptables):
+    if type(indices) != list:
+        indices = list(indices)
+    ncoords = len(indices)
+    bound = max(ptables[i][indices[i]] for i in range(ncoords))
+    while True:
+        path = ida_search(indices, mtables, ptables, bound, None)
+        if path is not None:
+            return path
+        bound += 1
 
-# def ida_search(indices, mtables, ptables, bound, last):
-#     ncoords = len(indices)
-#     nmoves = len(mtables[0][0])
-#     heuristic = max(ptables[i][indices[i]] for i in range(ncoords))
-#     if heuristic > bound:
-#         return None
-#     if bound == 0 or heuristic == 0:
-#         return ()
-#     for m in range(nmoves):
-#         if m == last:
-#             continue
-#         new_indices = indices[:]
-#         for c in range(ncoords):
-#             new_indices[c] = mtables[c][indices[c]][m]
-#         r = 1
-#         while new_indices != indices:
-#             subpath = ida_search(new_indices, mtables, ptables, bound-1, m)
-#             if subpath is not None:
-#                 return ((m, r),) + subpath
-#             for c in range(ncoords):
-#                 new_indices[c] = mtables[c][new_indices[c]][m]
-#             r += 1
-#     return None
+def ida_search(indices, mtables, ptables, bound, last):
+    ncoords = len(indices)
+    nmoves = len(mtables[0][0])
+    heuristic = max(ptables[i][indices[i]] for i in range(ncoords))
+    if heuristic > bound:
+        return None
+    if bound == 0 or heuristic == 0:
+        return ()
+    for m in range(nmoves):
+        if m == last:
+            continue
+        new_indices = indices[:]
+        for c in range(ncoords):
+            new_indices[c] = mtables[c][indices[c]][m]
+        r = 1
+        while new_indices != indices:
+            subpath = ida_search(new_indices, mtables, ptables, bound-1, m)
+            if subpath is not None:
+                return ((m, r),) + subpath
+            for c in range(ncoords):
+                new_indices[c] = mtables[c][new_indices[c]][m]
+            r += 1
+    return None
 
 print(print_move_sequence(solve(test_state)))
