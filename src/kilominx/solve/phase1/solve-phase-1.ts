@@ -3,7 +3,7 @@ import { MoveSequence, newMove } from '../../sequence';
 import { searchPhase1 } from './search-phase-1';
 
 export const solvePhase1 = (state: State): MoveSequence => {
-  const p = state.permution;
+  const p = state.permutation;
   const lastFive = p.slice(-5);
   if (lastFive.every((_, i) => p.indexOf(i + 15) < 15)) {
     return [];

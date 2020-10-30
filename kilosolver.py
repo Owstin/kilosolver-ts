@@ -212,8 +212,8 @@ move_names = ('U', 'R', 'F', 'L', 'BL', 'BR', 'flip')
 
 test_state = State(888942217053048776751679251)
 
-# def random_state():
-#     return State(random.randrange(factorial(20) // 2 * 3 ** 19))
+def random_state():
+    return State(random.randrange(factorial(20) // 2 * 3 ** 19))
 
 def print_move_sequence(move_sequence):
     s = []
@@ -295,6 +295,7 @@ def index_phase2(state):
     index_o = sum(o * 3**i for i, o in enumerate(o[i] for i in range(15) if p[i] >= 15)) + 243 * index_c
     index_p = sum(p.index(15 + i) * 15**i for i in range(5))
     return index_o, index_p
+    # return index_c
 
 def solve_phase2(state):
     mtables = (generate_phase23_orientation_mtable(), generate_phase23_permutation_mtable())
@@ -329,12 +330,12 @@ def solve_phase2(state):
 def solve(state):
     sol1 = solve_phase1(state)
     state = apply_move_sequence(state, sol1)
-    sol2 = solve_phase2(state)
-    state = apply_move_sequence(state, sol2)
+    # sol2 = solve_phase2(state)
+    # state = apply_move_sequence(state, sol2)
     # sol3 = solve_phase3(state)
     # state = apply_move_sequence(state, sol3)
     # sol4 = solve_phase4(state)
-    return sol1 + sol2 # + sol3 + sol4
+    return sol1 # + sol2 # + sol3 + sol4
 
 @functools.lru_cache()
 def generate_phase23_orientation_mtable():
@@ -482,4 +483,6 @@ def ida_search(indices, mtables, ptables, bound, last):
             r += 1
     return None
 
-print(print_move_sequence(solve(test_state)))
+# print(print_move_sequence(solve(random_state())))
+table = generate_phase23_orientation_mtable()
+print(table[:5])

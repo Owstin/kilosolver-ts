@@ -28,8 +28,13 @@ const combination = (n: number, k: number): number => {
 
 const sum = (numArray: number[]): number => numArray.reduce((acc, num) => acc += num);
 
+// -7 % 3 = -1 ❌
+// mod(-7, 3) = 2 ✅
+const mod = (n: number, m: number) => ((n % m) + m) % m;
+
 export {
   factorial,
   combination,
-  sum
+  sum,
+  mod
 }

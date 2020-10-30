@@ -14,7 +14,7 @@ export const searchPhase1 = (flags: number[], depth: number, last?: number): Mov
       continue;
     }
     for (let r = 1; r < 5; r++) {
-      const newFlags = compose(flags, (moves[moveIndex].pow(r)).permution);
+      const newFlags = compose(flags, (moves[moveIndex].pow(r)).permutation);
       const sol = searchPhase1(newFlags, depth - 1, moveIndex);
       if (sol !== undefined) {
         return [newMove(moveIndex, r)].concat(sol);

@@ -2,7 +2,7 @@ import { TwistedPermutation } from './twisted-permutation';
 import { BigInteger } from 'big-integer';
 import { indexToEvenPermutation } from '../util/permutation';
 import bigInt from 'big-integer';
-import { sum } from '../util/math';
+import { sum, mod } from '../util/math';
 
 type StateArgs = BigInteger | number[][];
 
@@ -18,7 +18,7 @@ export class State extends TwistedPermutation {
       for (let i = 0; i < 19; i++) {
         o[i] = +index_o.divide(bigInt(3).pow(i)).mod(3).toString(10);
       }
-      o.push(-sum(o) % 3);
+      o.push(mod(-sum(o), 3));
     }
     super(p, o, 3);
   }

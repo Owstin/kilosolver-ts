@@ -1,31 +1,32 @@
 import { shallowEqual } from 'fast-equals';
 import { rangeArray, numberArray } from '../util/arrays';
+import { mod } from '../util/math';
 
 export class TwistedPermutation {
   constructor(
-    public permution: number[],
+    public permutation: number[],
     public orientation: number[],
     private modulus: number
   ) { }
 
   isEqual(otherPermutation: TwistedPermutation): boolean {
     return (
-      shallowEqual(this.permution, otherPermutation.permution) &&
+      shallowEqual(this.permutation, otherPermutation.permutation) &&
       shallowEqual(this.orientation, otherPermutation.orientation) &&
       shallowEqual(this.modulus, otherPermutation.modulus)
     );
   }
 
   length() {
-    return this.permution.length;
+    return this.permutation.length;
   }
 
   multiply(otherPermutation: TwistedPermutation) {
     const p = [];
     const o = [];
     for (let i = 0; i < this.length(); i++) {
-      p[i] = this.permution[otherPermutation.permution[i]];
-      o[i] = (this.orientation[otherPermutation.permution[i]] + otherPermutation.orientation[i]) % this.modulus;
+      p[i] = this.permutation[otherPermutation.permutation[i]];
+      o[i] = mod((this.orientation[otherPermutation.permutation[i]] + otherPermutation.orientation[i]), this.modulus);
     }
     return new TwistedPermutation(p, o, this.modulus);
   }
@@ -34,8 +35,8 @@ export class TwistedPermutation {
     const p = numberArray(undefined, this.length());
     const o = numberArray(undefined, this.length());
     for (let i = 0; i < this.length(); i++) {
-      p[this.permution[i]] = i;
-      o[this.permution[i]] = (-1 * this.orientation[i]) % this.modulus; 
+      p[this.permutation[i]] = i;
+      o[this.permutation[i]] = mod((-1 * this.orientation[i]), this.modulus); 
     }
     return new TwistedPermutation(p, o, this.modulus);
   }
@@ -51,7 +52,7 @@ export class TwistedPermutation {
       return this.invert().pow(-num);
     } else {
       const half = this.pow(Math.floor(num / 2));
-      return half.multiply(half.multiply(this.pow(num % 2)));
+      return half.multiply(half.multiply(this.pow(mod(num, 2))));
     }
   }
 }

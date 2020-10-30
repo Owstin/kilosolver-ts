@@ -1,4 +1,4 @@
-import { factorial, sum, combination } from './math';
+import { factorial, sum, combination, mod } from './math';
 import { rangeArray, numberArray } from './arrays';
 import bigInt, { BigInteger } from 'big-integer';
 
@@ -79,6 +79,8 @@ const indexToComb = (index: number, ones: number, bits?: number): number[] => {
     if (bits === undefined) {
       return numberArray(1, ones);
     }
+    console.log('bits: ', bits);
+    console.log('ones: ', ones);
     return numberArray(0, bits - ones).concat(numberArray(1, ones));
   }
   if (bits === undefined) {
@@ -114,7 +116,7 @@ const permutationFromCycles = (cycles: number[], length: number) => {
   const p = rangeArray(length);
   for (const cycle of boxedCycles) {
     for (let i = 0; i < cycle.length; i++) {
-      p[cycle[i]] = cycle[(1 + i) % cycle.length]
+      p[cycle[i]] = cycle[mod((1 + i), cycle.length)]
     }
   }
   return p;
